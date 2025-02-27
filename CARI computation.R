@@ -1,4 +1,4 @@
-
+#load the necessary Libraries
 library(dplyr)
 library(readxl)
 library(writexl)
@@ -10,7 +10,7 @@ clean_c_types <- ifelse(str_detect(string = clean_data_nms, pattern = "_other$")
 data <- readxl::read_excel(path = clean_data_path, col_types = clean_c_types, na = "NA")
 data <- data %>%
   mutate(ecmen1 = ifelse(TotalHHEXP1-(ExpNFKhat + ExpNFOther) > MEB, 1, 0))
-# Current Status using FCS and RCSI
+# Current Status using FCS (food consumption score) and RCSI (reduced coping strategy index)
 data <- data %>%
   mutate(Current_Status = case_when(
     fsl_fcs_cat == "Acceptable" & fsl_rcsi_score < 4 ~ 1,     
@@ -39,12 +39,12 @@ data <- data %>%
 # Economic Vulnerability (ECMEN)
 # ECMEN Calculation
 data <- data %>% 
-  mutate(SMEB = ifelse(region == 'bay',80,
-                      ifelse(region == 'gedo', 101,
-                             ifelse(region == 'hiiran', 72, 
-                                    ifelse(region == 'lower_jubba', 69, 
-                                           ifelse(region == 'middle_shabelle', 95, 
-                                                  ifelse(region == 'sool', 117, NA)))))))
+  mutate(SMEB = ifelse(region == 'region1',80,
+                      ifelse(region == 'region2', 101,
+                             ifelse(region == 'region3', 72, 
+                                    ifelse(region == 'region4', 69, 
+                                           ifelse(region == 'region5', 95, 
+                                                  ifelse(region == 'region6', 117, NA)))))))
 data <- data %>%
   mutate(
     ECMEN = case_when(
@@ -52,8 +52,7 @@ data <- data %>%
       TotalHHEXP1-(ExpNFKhat + ExpNFOther) >= SMEB & TotalHHEXP1-(ExpNFKhat + ExpNFOther) <= MEB ~ 3,  
       TotalHHEXP1-(ExpNFKhat + ExpNFOther) <= SMEB ~ 4  
     )
-  )
-
+  )# exlude expenses on other and khat as they are not sectoral expenses
 
 #Classify Livelihood Coping Strategies (LCS)
 data <- data %>%
